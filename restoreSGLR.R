@@ -2,9 +2,9 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24)){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
-  # synapseLogin("in.sock.jang@sagebase.org","tjsDUD@")
-  source("~/PredictiveModel_pipeline/R5/myEnetModel1.R")
-  source("~/PredictiveModel_pipeline/myData_CCLE_new.R")
+  
+  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_CCLE_new.R")
   
   ###################################################
   #### Load Pathways                             ####
@@ -110,9 +110,9 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
-  # synapseLogin("in.sock.jang@sagebase.org","tjsDUD@")
-  source("~/PredictiveModel_pipeline/R5/myEnetModel1.R")
-  source("~/PredictiveModel_pipeline/myData_Sanger.R")
+    
+  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_Sanger.R")
   
   ###################################################
   #### Load Pathways                             ####

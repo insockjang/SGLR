@@ -1,5 +1,7 @@
 # run SGLR
 # example: NCI database with Mh dataset in CCLE
+library(synapseClient)
+synapseLogin()
 
 # Step 01 : stepwise prior selection
 source("~/SGLR/SGLR_prior.R")
