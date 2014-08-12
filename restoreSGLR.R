@@ -4,8 +4,8 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24)){
   require(synapseClient)
   require(devtools)
   
-  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
-  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_CCLE_new.R")
+  source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+  source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_CCLE_new.R")
   
   ###################################################
   #### Load Pathways                             ####
@@ -113,8 +113,8 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
   require(synapseClient)
   require(devtools)
   
-  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
-  source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_Sanger.R")
+  source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+  source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_Sanger.R")
   
   ###################################################
   #### Load Pathways                             ####
