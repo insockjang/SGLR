@@ -2,6 +2,7 @@ SGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
+  require(devtools)
   
   source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
   source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_CCLE_new.R")
@@ -87,7 +88,8 @@ SGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
-    
+  require(devtools)
+  
   source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
   source_url("https://raw.githubusercontent.com/Sage-Bionetworks/PredictiveModel_pipeline/master/myData_Sanger.R")
   source_url("https://raw.githubusercontent.com/insockjang/SGSR/master/parallel_stepwiseDecision.R")

@@ -2,6 +2,7 @@ ENetSameNumber_CCLE<-function(pathwayName,dataCombine,ALPHA = 0.5){
   ### Cross training and testing
   library(predictiveModeling)
   library(synapseClient)
+  require(devtools)
   
   a<-synGet("syn2604222")
   load(a@filePath)
@@ -62,6 +63,7 @@ ENetSameNumber_Sanger<-function(pathwayName,dataCombine,ALPHA = 0.5){
   ### Cross training and testing
   library(predictiveModeling)
   library(synapseClient)
+  require(devtools)
   
   a<-synGet("syn2604222")
   load(a@filePath)
