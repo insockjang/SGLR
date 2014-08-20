@@ -100,7 +100,7 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
       save(resultSTEP,file = filename)
     }
     name1<-drugNameCCLE[kk]
-    KKK<-ListMake("ActArea",dataCombine,pathwayName)
+    KKK<-ListMake2("ActArea",dataCombine,pathwayName)
     plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
                           used=KKK,                              
                           activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
@@ -209,7 +209,7 @@ bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNu
       save(resultSTEP,file = filename)
     }
     name1<-drugNameSangerIC[kk]
-    KKK<-ListMake("IC50",dataCombine,pathwayName)
+    KKK<-ListMake2("IC50",dataCombine,pathwayName)
     plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
                           used=KKK,                              
                           activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
