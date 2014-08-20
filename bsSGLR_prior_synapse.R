@@ -1,11 +1,17 @@
-restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
+bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
+
   require(predictiveModeling)
   require(synapseClient)
   require(devtools)
-  
+    
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_CCLE_new.R")
+  source_url("https://raw.githubusercontent.com/insockjang/SGLR/master/parallel_stepwiseDecision.R")
+  source_url("https://raw.githubusercontent.com/insockjang/Supplements/master/ListMake_CCLE.R")
+  # drug annotations
+  drugs<-synGet("syn2631135")
+  load(drugs@filePath)
   
   ###################################################
   #### Load Pathways                             ####
@@ -50,13 +56,23 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
     groups[[k]]<-aa
   }
   
-  #   KK<-c(4,12,6,23)
+  myFolder  <- Folder(name = "CCLE", parentId = "syn2575943")
+  myFolder  <- synStore(myFolder)
   
+  myFolder.1  <- Folder(name = dataCombine, parentId = myFolder$properties$id)
+  myFolder.1  <- synStore(myFolder.1)    
+  
+  myFolder.2  <- Folder(name = pathwayName, parentId = myFolder.1$properties$id)
+  myFolder.2  <- synStore(myFolder.2)
+  
+  myFolder.3  <- Folder(name = "SGLR_prior_bootstrap", parentId = myFolder.2$properties$id)
+  myFolder.3  <- synStore(myFolder.3)
+    
   for(kk in KK){
-    filename1 = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
-    load(filename1)  
-    filename = paste("~/Result_priorIncorporateStepwiseRegressionNewAlpha1_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
+    filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_",kk,".Rdata",sep = "")
     if(!file.exists(filename)){
+      
+      
       
       #########################################################################################################
       ######## Training and Testing data are scaled(normalized) vs. raw(unnormalized) #######################
@@ -74,47 +90,39 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
       filteredResponseDataScaled <- scale(filteredResponseData)
       
       set.seed(2)
-      foldIndices <- createFolds(filteredFeatureDataScaled[,1], k = 5, list = TRUE)
+      # bootstrapping resampling
+      bootIndices <- createResample(filteredFeatureDataScaled[,1],times = bsNum,list = TRUE)
       
-      resultsScale <- foreach(k = 1:length(foldIndices)) %dopar% {      
-        groupNum<-which(resultSTEP[[k]]$penalty == 0)
-        
-        foldModel <- myEnetModel1$new()
-        
-        foldModel$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = alphas, nfolds = 5,penalty.factor = resultSTEP[[k]]$penalty)
-        
-        coefficients<-foldModel$getCoefficients()
-        Coefficients<-coefficients[-1]
-        
-        groupNum1<-which(Coefficients!=0)
-        foldModel1 <- myEnetModel1$new()
-        
-        foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
-        
-        res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
-                    trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
-                    testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
-                    testObservations = filteredResponseDataScaled[foldIndices[[k]]])
-        
-        return(res)                   
-      }    
-      
-      
-      save(resultsScale,file = filename)
-      
+      resultSTEP<-foreach(kkk = 1:length(bootIndices)) %dopar% {
+        STEP<-parallel_stepwiseDecision(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]],groups,coreNum = mcCoreNum,100)
+        return(STEP)
+      }
+      save(resultSTEP,file = filename)
     }
+    name1<-drugNameCCLE[kk]
+    KKK<-ListMake("ActArea",dataCombine,pathwayName)
+    plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+                          used=KKK,                              
+                          activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                          activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
   }
 }
 
-
-restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39,90,127,123,13,4,110,6,9,12,95,94,108,11,17,2,122,124,126,87,84,75,41,82)),alphas = 0.1){
+bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
   require(devtools)
   
+  
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_Sanger.R")
+  source_url("https://raw.githubusercontent.com/insockjang/SGLR/master/parallel_stepwiseDecision.R")
+  source_url("https://raw.githubusercontent.com/insockjang/Supplements/master/ListMake_Sanger.R")
+  
+  # drug annotations
+  drugs<-synGet("syn2631135")
+  load(drugs@filePath)
   
   ###################################################
   #### Load Pathways                             ####
@@ -144,7 +152,7 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
   }    
   
   ###################################################
-  #### Load Sanger Molecular Feature Data from Synapse ####
+  #### Load CCLE Molecular Feature Data from Synapse ####
   ###################################################
   dataSets<-myData_Sanger(dataCombine,"IC50")
   
@@ -159,12 +167,20 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
     groups[[k]]<-aa
   }
   
+  myFolder  <- Folder(name = "Sanger", parentId = "syn2575943")
+  myFolder  <- synStore(myFolder)
   
+  myFolder.1  <- Folder(name = dataCombine, parentId = myFolder$properties$id)
+  myFolder.1  <- synStore(myFolder.1)    
+  
+  myFolder.2  <- Folder(name = pathwayName, parentId = myFolder.1$properties$id)
+  myFolder.2  <- synStore(myFolder.2)
+  
+  myFolder.3  <- Folder(name = "SGLR_prior_bootstrap", parentId = myFolder.2$properties$id)
+  myFolder.3  <- synStore(myFolder.3)
   
   for(kk in KK){
-    filename1 = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
-    load(filename1)  
-    filename = paste("~/Result_priorIncorporateStepwiseRegressionNewAlpha1_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
+    filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_bsDrug_",kk,".Rdata",sep = "")
     if(!file.exists(filename)){
       
       #########################################################################################################
@@ -183,34 +199,21 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
       filteredResponseDataScaled <- scale(filteredResponseData)
       
       set.seed(2)
-      foldIndices <- createFolds(filteredFeatureDataScaled[,1], k = 5, list = TRUE)
+      # bootstrapping resampling
+      bootIndices <- createResample(filteredFeatureDataScaled[,1],times = bsNum,list = TRUE)
       
-      resultsScale <- foreach(k = 1:length(foldIndices)) %dopar% {      
-        groupNum<-which(resultSTEP[[k]]$penalty == 0)
-        
-        foldModel <- myEnetModel1$new()
-        
-        foldModel$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = alphas, nfolds = 5,penalty.factor = resultSTEP[[k]]$penalty)
-        
-        coefficients<-foldModel$getCoefficients()
-        Coefficients<-coefficients[-1]
-        
-        groupNum1<-which(Coefficients!=0)
-        foldModel1 <- myEnetModel1$new()
-        
-        foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
-        
-        res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
-                    trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
-                    testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
-                    testObservations = filteredResponseDataScaled[foldIndices[[k]]])
-        
-        return(res)                   
-      }    
-      
-      
-      save(resultsScale,file = filename)
-      
+      resultSTEP<-foreach(kkk = 1:length(bootIndices)) %dopar% {
+        STEP<-parallel_stepwiseDecision(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]],groups,coreNum = mcCoreNum,100)
+        return(STEP)
+      }
+      save(resultSTEP,file = filename)
     }
-  }
+    name1<-drugNameSangerIC[kk]
+    KKK<-ListMake("IC50",dataCombine,pathwayName)
+    plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+                          used=KKK,                              
+                          activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                          activityDescription="To execute run: bsSGLR_prior_Sanger(pathwayName,dataCombine,KK,bsNum = 100)")        
+    }
 }
+

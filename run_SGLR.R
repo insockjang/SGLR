@@ -13,13 +13,16 @@ for(k1 in PathwayName){
   }
 }
 
+
 # Step 01-2 : if you need only feature selection : bootstrapping 
-source("~/SGLR/bsSGLR_prior.R")
-PathwayName<-c("NCI")
+KK1=c(1,2,4,6,9,11,12,13,14,17,39,41,75,82,84,87,90,94,95,103,108,110,122,123,124,126,127,129)
+source("~/SGLR/bsSGLR_prior_synapse.R")
+PathwayName<-c("BIOCARTA","NCI","GO_BP","GO_MF")
 DataCombine<-c("Mh")#,"E","C")
 for(k1 in PathwayName){
   for(k2 in DataCombine){
     bsSGLR_prior_CCLE(k1,k2,bsNum = 100)
+    bsSGLR_prior_Sanger(k1,k2,KK=KK1,bsNum = 100)
   }
 }
 

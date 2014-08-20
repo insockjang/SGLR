@@ -1,10 +1,11 @@
-restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
+restoreSGLR_only_CCLE<-function(pathwayName,dataCombine,KK = c(1:24)){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
   require(devtools)
   
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+  source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myLMModel1.R")
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_CCLE_new.R")
   
   ###################################################
@@ -55,7 +56,7 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
   for(kk in KK){
     filename1 = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
     load(filename1)  
-    filename = paste("~/Result_priorIncorporateStepwiseRegressionNewAlpha1_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
+    filename = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
     if(!file.exists(filename)){
       
       #########################################################################################################
@@ -77,28 +78,46 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
       foldIndices <- createFolds(filteredFeatureDataScaled[,1], k = 5, list = TRUE)
       
       resultsScale <- foreach(k = 1:length(foldIndices)) %dopar% {      
-        groupNum<-which(resultSTEP[[k]]$penalty == 0)
-        
-        foldModel <- myEnetModel1$new()
-        
-        foldModel$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = alphas, nfolds = 5,penalty.factor = resultSTEP[[k]]$penalty)
-        
-        coefficients<-foldModel$getCoefficients()
-        Coefficients<-coefficients[-1]
-        
-        groupNum1<-which(Coefficients!=0)
-        foldModel1 <- myEnetModel1$new()
-        
-        foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
-        
-        res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
-                    trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
-                    testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
-                    testObservations = filteredResponseDataScaled[foldIndices[[k]]])
-        
-        return(res)                   
-      }    
-      
+        groupNum1<-which(resultSTEP[[k]]$penalty == 0)
+        if(length(groupNum1)==0){
+          foldModel1 <- myEnetModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 1, nfolds = 5)
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }
+        if(length(groupNum1)==1){
+          
+          foldModel1 <- myLMModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]])
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }
+        if(length(groupNum1)>1){
+          foldModel1 <- myEnetModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
+          
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }    
+      }
       
       save(resultsScale,file = filename)
       
@@ -107,13 +126,15 @@ restoreSGLR_CCLE<-function(pathwayName,dataCombine,KK = c(1:24), alphas = 0.1){
 }
 
 
-restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39,90,127,123,13,4,110,6,9,12,95,94,108,11,17,2,122,124,126,87,84,75,41,82)),alphas = 0.1){
+restoreSGLR_only_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39,90,127,123,13,4,110,6,9,12,95,94,108,11,17,2,122,124,126,87,84,75,41,82))){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
   require(devtools)
   
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myEnetModel1.R")
+#   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/R5/myLMModel1.R")  
+  source("~/PredictiveModel_pipeline/R5/myLMModel1.R")
   source_url("https://raw.githubusercontent.com/insockjang/PredictiveModel_pipeline/master/myData_Sanger.R")
   
   ###################################################
@@ -164,7 +185,7 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
   for(kk in KK){
     filename1 = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
     load(filename1)  
-    filename = paste("~/Result_priorIncorporateStepwiseRegressionNewAlpha1_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
+    filename = paste("~/Result_priorIncorporateStepwiseRegression_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/restoredPriorIncorporated_cvDrug_",kk,".Rdata",sep = "")
     if(!file.exists(filename)){
       
       #########################################################################################################
@@ -186,28 +207,46 @@ restoreSGLR_Sanger<-function(pathwayName,dataCombine,KK = sort(c(103,14,129,1,39
       foldIndices <- createFolds(filteredFeatureDataScaled[,1], k = 5, list = TRUE)
       
       resultsScale <- foreach(k = 1:length(foldIndices)) %dopar% {      
-        groupNum<-which(resultSTEP[[k]]$penalty == 0)
-        
-        foldModel <- myEnetModel1$new()
-        
-        foldModel$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = alphas, nfolds = 5,penalty.factor = resultSTEP[[k]]$penalty)
-        
-        coefficients<-foldModel$getCoefficients()
-        Coefficients<-coefficients[-1]
-        
-        groupNum1<-which(Coefficients!=0)
-        foldModel1 <- myEnetModel1$new()
-        
-        foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
-        
-        res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
-                    trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
-                    testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
-                    testObservations = filteredResponseDataScaled[foldIndices[[k]]])
-        
-        return(res)                   
-      }    
-      
+        groupNum1<-which(resultSTEP[[k]]$penalty == 0)
+        if(length(groupNum1)==0){
+          foldModel1 <- myEnetModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 1, nfolds = 5)
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }
+        if(length(groupNum1)==1){
+          
+          foldModel1 <- myLMModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]])
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }
+        if(length(groupNum1)>1){
+          foldModel1 <- myEnetModel1$new()
+          
+          foldModel1$customTrain(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1], filteredResponseDataScaled[-foldIndices[[k]]], alpha = 0, nfolds = 5)
+          
+          
+          res <- list(trainPredictions = foldModel1$customPredict(filteredFeatureDataScaled[-foldIndices[[k]],groupNum1]), 
+                      trainObservations = filteredResponseDataScaled[-foldIndices[[k]]],
+                      testPredictions = foldModel1$customPredict(filteredFeatureDataScaled[foldIndices[[k]],groupNum1]),
+                      testObservations = filteredResponseDataScaled[foldIndices[[k]]])
+          
+          return(res)                   
+        }    
+      }
       
       save(resultsScale,file = filename)
       
