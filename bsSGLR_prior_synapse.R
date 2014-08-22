@@ -56,24 +56,25 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
     groups[[k]]<-aa
   }
   
-  myFolder  <- Folder(name = "CCLE", parentId = "syn2575943")
-  myFolder  <- synStore(myFolder)
-  
-  myFolder.1  <- Folder(name = dataCombine, parentId = myFolder$properties$id)
-  myFolder.1  <- synStore(myFolder.1)    
-  
-  myFolder.2  <- Folder(name = pathwayName, parentId = myFolder.1$properties$id)
-  myFolder.2  <- synStore(myFolder.2)
-  
-  myFolder.3  <- Folder(name = "SGLR_prior_bootstrap", parentId = myFolder.2$properties$id)
-  myFolder.3  <- synStore(myFolder.3)
-  
+#   myFolder  <- Folder(name = "CCLE", parentId = "syn2575943")
+#   myFolder  <- synStore(myFolder)
+#   
+#   myFolder.1  <- Folder(name = dataCombine, parentId = myFolder$properties$id)
+#   myFolder.1  <- synStore(myFolder.1)    
+#   
+#   myFolder.2  <- Folder(name = pathwayName, parentId = myFolder.1$properties$id)
+#   myFolder.2  <- synStore(myFolder.2)
+#   
+#   myFolder.3  <- Folder(name = "SGLR_prior_bootstrap", parentId = myFolder.2$properties$id)
+#   myFolder.3  <- synStore(myFolder.3)
+#   
   qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
   qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "CCLE")], "'"))  
   qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
   qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
   qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
     
+  
   if(is.null(qry4)){
     
     for(kk in KK){
@@ -109,7 +110,7 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
       }
       name1<-drugNameCCLE[kk]
       KKK<-ListMake2("ActArea",dataCombine,pathwayName)
-      plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+      plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
                             used=KKK,                              
                             activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
                             activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
@@ -150,7 +151,7 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
         }
         name1<-drugNameCCLE[kk]
         KKK<-ListMake2("ActArea",dataCombine,pathwayName)
-        plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+        plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
                               used=KKK,                              
                               activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
                               activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
@@ -261,7 +262,7 @@ bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNu
       }
       name1<-drugNameSangerIC[kk]
       KKK<-ListMake2("IC50",dataCombine,pathwayName)
-      plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+      plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
                             used=KKK,                              
                             activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
                             activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
@@ -302,7 +303,7 @@ bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNu
         }
         name1<-drugNameSangerIC[kk]
         KKK<-ListMake2("IC50",dataCombine,pathwayName)
-        plotFile  <- synStore(File(path=filename, parentId=myFolder.3$properties$id,name = name1),
+        plotFile  <- synStore(File(path=filename, parentId = qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
                               used=KKK,                              
                               activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
                               activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
