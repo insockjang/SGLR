@@ -67,7 +67,7 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
   for(kk in KK){
     qq<-match(drugNameCCLE[kk],qry4$entity.name)
     if(is.na(qq)){        
-      
+      filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_",kk,".Rdata",sep = "")
       #########################################################################################################
       ######## Training and Testing data are scaled(normalized) vs. raw(unnormalized) #######################
       #########################################################################################################
@@ -92,16 +92,15 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
         return(STEP)
       }
       save(resultSTEP,file = filename)
+      name1<-drugNameCCLE[kk]
+      KKK<-ListMake2("ActArea",dataCombine,pathwayName)
+      plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
+                            used=KKK,                              
+                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                            activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
     }
-    name1<-drugNameCCLE[kk]
-    KKK<-ListMake2("ActArea",dataCombine,pathwayName)
-    plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
-                          used=KKK,                              
-                          activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
-                          activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
   }
 }
-
 
 bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
@@ -198,12 +197,13 @@ bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNu
         return(STEP)
       }
       save(resultSTEP,file = filename)
+      
+      name1<-drugNameSangerIC[kk]
+      KKK<-ListMake2("IC50",dataCombine,pathwayName)
+      plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
+                            used=KKK,                              
+                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                            activityDescription="To execute run: bsSGLR_prior_Sanger(pathwayName,dataCombine,KK= 1:138,bsNum = 100)")            
     }
-    name1<-drugNameSangerIC[kk]
-    KKK<-ListMake2("IC50",dataCombine,pathwayName)
-    plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")],name = name1),
-                          used=KKK,                              
-                          activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
-                          activityDescription="To execute run: bsSGLR_prior_CCLE(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
   }
 }
