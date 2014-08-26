@@ -101,7 +101,7 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
       
       save(resultWeight,file = filename)
       name1<-drugNameCCLE[kk]
-      KKK<-ListMake3("ActArea",dataCombine,pathwayName)
+      KKK<-ListMake3("ActArea",dataCombine,pathwayName,qry4$entity.name[qq],qry4$entity.id[qq])
       plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")],name = name1),
                             used=KKK,                              
                             activityName="Incoporated Priors from Stepwise forward selection : bootstrapping beta coefficients for features",
