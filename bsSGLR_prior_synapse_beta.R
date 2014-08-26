@@ -60,13 +60,14 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
   qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "CCLE")], "'"))  
   qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
   qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
-  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
+  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
+  qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
   
   
   
   for(kk in KK){
-    qq<-match(drugNameCCLE[kk],qry4$entity.name)
-    if(is.na(qq)){        
+    pp<-match(drugNameSangerIC[kk],qry5$entity.name)
+    if(!is.na(qq) & is.na(pp)){
       filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
       #########################################################################################################
       ######## Training and Testing data are scaled(normalized) vs. raw(unnormalized) #######################
@@ -89,20 +90,21 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
       
       aa1<-synGet(qry4$entity.id[qq])
       load(aa1@filePath)
-      myEnetModel1
       
-      resultWeight<-foreach(kkk = 1:length(bootIndices)) %dopar% {        
+      resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
         bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],which(resultSTEP[[kkk]]$penalty==0)], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0, nfolds = 5)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
+      resultWeight <- mclapply(1:bsNum,function(x)resultWeightFun(x),mc.cores=mcCoreNum)
       
+      save(resultWeight,file = filename)
       name1<-drugNameCCLE[kk]
       KKK<-ListMake3("ActArea",dataCombine,pathwayName)
       plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")],name = name1),
                             used=KKK,                              
-                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping beta coefficients for features",
                             activityDescription="To execute run: bsSGLR_prior_CCLE_beta(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
     }
   }
@@ -172,11 +174,13 @@ bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcC
   qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "Sanger")], "'"))  
   qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
   qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
-  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
+  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
+  qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
   
   for(kk in KK){
     qq<-match(drugNameSangerIC[kk],qry4$entity.name)
-    if(is.na(qq)){
+    pp<-match(drugNameSangerIC[kk],qry5$entity.name)
+    if(!is.na(qq) & is.na(pp)){
       
       filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
       #########################################################################################################
@@ -200,22 +204,22 @@ bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcC
       
       aa1<-synGet(qry4$entity.id[qq])
       load(aa1@filePath)
-      myEnetModel1
-      
-      resultWeight<-foreach(kkk = 1:length(bootIndices)) %dopar% {        
+            
+      resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
         bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],which(resultSTEP[[kkk]]$penalty==0)], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0, nfolds = 5)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
+      resultWeight <- mclapply(1:bsNum,function(x)resultWeightFun(x),mc.cores=mcCoreNum)
       
-      save(resultSTEP,file = filename)
+      save(resultWeight,file = filename)
       
       name1<-drugNameSangerIC[kk]
-      KKK<-ListMake3("IC50",dataCombine,pathwayName)
+      KKK<-ListMake3("IC50",dataCombine,pathwayName,qry4$entity.name[qq],qry4$entity.id[qq])
       plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")],name = name1),
                             used=KKK,                              
-                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping for features",
+                            activityName="Incoporated Priors from Stepwise forward selection : bootstrapping beta coefficients for features",
                             activityDescription="To execute run: bsSGLR_prior_Sanger_beta(pathwayName,dataCombine,KK= 1:138,bsNum = 100)")            
     }
   }
