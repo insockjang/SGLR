@@ -16,7 +16,7 @@ for(k1 in PathwayName){
 
 # Step 01-2 : if you need only feature selection : bootstrapping 
 KK1=c(1,2,4,6,9,11,12,13,14,17,39,41,75,82,84,87,90,94,95,103,108,110,122,123,124,126,127,129)
-source("~/SGLR/bsSGLR_prior_synapse.R")
+source_url("https://raw.githubusercontent.com/insockjang/SGLR/master/bsSGLR_prior_synapse.R")
 PathwayName<-c("KEGG","BIOCARTA","NCI","GO_BP","GO_MF")
 DataCombine<-c("E","C")
 for(k1 in PathwayName){
