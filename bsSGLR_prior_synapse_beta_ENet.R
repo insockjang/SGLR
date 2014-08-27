@@ -69,7 +69,7 @@ bsSGLR_prior_CCLE_beta_ENet<-function(pathwayName,dataCombine,KK=c(1:24),bsNum =
     pp<-match(drugNameCCLE[kk],qry5$entity.name)
     
     if(!is.na(qq) & is.na(pp)){
-      filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
+      filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_beta_ENet_",kk,".Rdata",sep = "")
       #########################################################################################################
       ######## Training and Testing data are scaled(normalized) vs. raw(unnormalized) #######################
       #########################################################################################################
@@ -183,7 +183,7 @@ bsSGLR_prior_Sanger_beta_ENet<-function(pathwayName,dataCombine,KK=NA,bsNum = 10
     
     if(!is.na(qq) & is.na(pp)){
       
-      filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
+      filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_bsDrug_beta_ENet_",kk,".Rdata",sep = "")
       #########################################################################################################
       ######## Training and Testing data are scaled(normalized) vs. raw(unnormalized) #######################
       #########################################################################################################
