@@ -26,25 +26,27 @@ for(k1 in PathwayName){
   print(k1)
 }
 
+
+# Step 01-3 : if you need only feature selection : bootstrapping beta coefficient should be captured
 library(devtools)
-# Step 01-2 : if you need only feature selection : bootstrapping beta coefficient should be captured
 KK1=c(1,2,4,6,9,11,12,13,14,17,39,41,75,82,84,87,90,94,95,103,108,110,122,123,124,126,127,129)
 source_url("https://raw.githubusercontent.com/insockjang/SGLR/master/bsSGLR_prior_synapse_beta.R")
 PathwayName<-c("KEGG","BIOCARTA","NCI","GO_BP","GO_MF")
 DataCombine<-c("E","C")
 for(k1 in PathwayName){
   for(k2 in DataCombine){
-    bsSGLR_prior_Sanger_beta(k1,k2,KK=KK1,bsNum = 100)
+    bsSGLR_prior_Sanger_beta(k1,k2,KK=KK1,bsNum = 100,mcCoreNum=1)
   }
   print(k1)
 }
 
 
 library(synapseClient)
+synapseLogin("in.sock.jang@sagebase.org","tjsDUD@")
 library(devtools)
 source_url("https://raw.githubusercontent.com/insockjang/SGLR/master/bsSGLR_prior_synapse.R")
 KK1=c(1,2,4,6,9,11,12,13,14,17,39,41,75,82,84,87,90,94,95,103,108,110,122,123,124,126,127,129)
-bsSGLR_prior_Sanger("GO_MF","E",KK=KK1,bsNum = 100,mcCoreNum=1)
+bsSGLR_prior_Sanger("NCI","C",KK=KK1,bsNum = 100)
 
 # Step 02: prediction is separately run with restoreSGLR.R
 

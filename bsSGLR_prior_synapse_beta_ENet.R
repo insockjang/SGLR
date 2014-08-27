@@ -1,4 +1,4 @@
-bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCoreNum = 32){
+bsSGLR_prior_CCLE_beta_ENet<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
   
   require(predictiveModeling)
@@ -56,7 +56,7 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
     groups[[k]]<-aa
   }  
   
-  
+    
   for(kk in KK){
     qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
     qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "CCLE")], "'"))  
@@ -65,9 +65,9 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
     qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
     qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
     
-    
     qq<-match(drugNameCCLE[kk],qry4$entity.name)
     pp<-match(drugNameCCLE[kk],qry5$entity.name)
+    
     if(!is.na(qq) & is.na(pp)){
       filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
       #########################################################################################################
@@ -91,10 +91,10 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
       
       aa1<-synGet(qry4$entity.id[qq])
       load(aa1@filePath)
-      
+            
       resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
-        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],which(resultSTEP[[kkk]]$penalty==0)], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0, nfolds = 5)
+        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.1, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
@@ -111,7 +111,7 @@ bsSGLR_prior_CCLE_beta<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,
   }
 }
 
-bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNum = 32){
+bsSGLR_prior_Sanger_beta_ENet<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNum = 32){
   ### DEMO Stepwise grouping Lasso
   require(predictiveModeling)
   require(synapseClient)
@@ -169,9 +169,7 @@ bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcC
     aa<-union(a1,union(a2,a3))
     groups[[k]]<-aa
   }
-  
-  
-  
+    
   for(kk in KK){
     qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
     qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "Sanger")], "'"))  
@@ -182,6 +180,7 @@ bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcC
     
     qq<-match(drugNameSangerIC[kk],qry4$entity.name)
     pp<-match(drugNameSangerIC[kk],qry5$entity.name)
+    
     if(!is.na(qq) & is.na(pp)){
       
       filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/Sanger/",pathwayName,"/PriorIncorporated_bsDrug_beta_",kk,".Rdata",sep = "")
@@ -206,13 +205,14 @@ bsSGLR_prior_Sanger_beta<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcC
       
       aa1<-synGet(qry4$entity.id[qq])
       load(aa1@filePath)
-            
+      
       resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
-        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],which(resultSTEP[[kkk]]$penalty==0)], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0, nfolds = 5)
+        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.1, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
+      
       resultWeight <- mclapply(1:bsNum,function(x)resultWeightFun(x),mc.cores=mcCoreNum)
       
       save(resultWeight,file = filename)

@@ -56,16 +56,19 @@ bsSGLR_prior_CCLE<-function(pathwayName,dataCombine,KK=c(1:24),bsNum = 100,mcCor
     groups[[k]]<-aa
   }  
   
-  qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
-  qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "CCLE")], "'"))  
-  qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
-  qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
-  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
   
   
   
   for(kk in KK){
+    
+    qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
+    qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "CCLE")], "'"))  
+    qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
+    qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
+    qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
+  
     qq<-match(drugNameCCLE[kk],qry4$entity.name)
+    
     if(is.na(qq)){        
       filename = paste("~/SGLR_bs100_filterVar02/",dataCombine,"/CCLE/",pathwayName,"/PriorIncorporated_bsDrug_",kk,".Rdata",sep = "")
       #########################################################################################################
@@ -162,13 +165,14 @@ bsSGLR_prior_Sanger<-function(pathwayName,dataCombine,KK=NA,bsNum = 100,mcCoreNu
   }
   
   
-  qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
-  qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "Sanger")], "'"))  
-  qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
-  qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
-  qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
-  
   for(kk in KK){
+    
+    qry0<-synapseQuery(paste("select id, name from entity where entity.parentId == '","syn2575943", "'"))  
+    qry1<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry0$entity.id[which(qry0$entity.name == "Sanger")], "'"))  
+    qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
+    qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
+    qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
+    
     qq<-match(drugNameSangerIC[kk],qry4$entity.name)
     if(is.na(qq)){
       
