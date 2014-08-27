@@ -94,7 +94,7 @@ bsSGLR_prior_CCLE_beta_ENet<-function(pathwayName,dataCombine,KK=c(1:24),bsNum =
             
       resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
-        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.1, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
+        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.01, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
@@ -208,7 +208,7 @@ bsSGLR_prior_Sanger_beta_ENet<-function(pathwayName,dataCombine,KK=NA,bsNum = 10
       
       resultWeightFun<-function(kkk){
         bsModel1 <- myEnetModel1$new()        
-        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.1, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
+        bsModel1$customTrain(filteredFeatureDataScaled[bootIndices[[kkk]],], filteredResponseDataScaled[bootIndices[[kkk]]], alpha = 0.01, nfolds = 5,penalty.factor = resultSTEP[[kkk]]$penalty)
         beta<-bsModel1$getCoefficients()      
         return(beta[-1,])
       }
