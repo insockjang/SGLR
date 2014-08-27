@@ -63,7 +63,7 @@ bsSGLR_prior_CCLE_beta_ENet<-function(pathwayName,dataCombine,KK=c(1:24),bsNum =
     qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
     qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
     qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
-    qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
+    qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta_ENet")], "'"))  
     
     qq<-match(drugNameCCLE[kk],qry4$entity.name)
     pp<-match(drugNameCCLE[kk],qry5$entity.name)
@@ -103,7 +103,7 @@ bsSGLR_prior_CCLE_beta_ENet<-function(pathwayName,dataCombine,KK=c(1:24),bsNum =
       save(resultWeight,file = filename)
       name1<-drugNameCCLE[kk]
       KKK<-ListMake3("ActArea",dataCombine,pathwayName,qry4$entity.name[qq],qry4$entity.id[qq])
-      plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")],name = name1),
+      plotFile  <- synStore(File(path=filename, parentId= qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta_ENet")],name = name1),
                             used=KKK,                              
                             activityName="Incoporated Priors from Stepwise forward selection : bootstrapping beta coefficients for features",
                             activityDescription="To execute run: bsSGLR_prior_CCLE_beta(pathwayName,dataCombine,KK=c(1:24),bsNum = 100)")            
@@ -176,7 +176,7 @@ bsSGLR_prior_Sanger_beta_ENet<-function(pathwayName,dataCombine,KK=NA,bsNum = 10
     qry2<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry1$entity.id[which(qry1$entity.name == dataCombine)], "'"))  
     qry3<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry2$entity.id[which(qry2$entity.name == pathwayName)], "'"))  
     qry4<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap")], "'"))  
-    qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")], "'"))  
+    qry5<-synapseQuery(paste("select id, name from entity where entity.parentId == '",qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta_ENet")], "'"))  
     
     qq<-match(drugNameSangerIC[kk],qry4$entity.name)
     pp<-match(drugNameSangerIC[kk],qry5$entity.name)
@@ -219,7 +219,7 @@ bsSGLR_prior_Sanger_beta_ENet<-function(pathwayName,dataCombine,KK=NA,bsNum = 10
       
       name1<-drugNameSangerIC[kk]
       KKK<-ListMake3("IC50",dataCombine,pathwayName,qry4$entity.name[qq],qry4$entity.id[qq])
-      plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta")],name = name1),
+      plotFile  <- synStore(File(path=filename, parentId=qry3$entity.id[which(qry3$entity.name == "SGLR_prior_bootstrap_beta_ENet")],name = name1),
                             used=KKK,                              
                             activityName="Incoporated Priors from Stepwise forward selection : bootstrapping beta coefficients for features",
                             activityDescription="To execute run: bsSGLR_prior_Sanger_beta(pathwayName,dataCombine,KK= 1:138,bsNum = 100)")            
